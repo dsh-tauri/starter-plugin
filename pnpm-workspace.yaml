@@ -72,8 +72,6 @@ catalogs:
     vitest: ^4.1.10
   types:
     '@types/node': ^26.1.1
-  ui:
-    css-render: ^0.15.14
 allowBuilds:
   esbuild: true
   simple-git-hooks: true
