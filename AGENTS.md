@@ -1,210 +1,60 @@
 # AGENTS.md
 
-## 项目概览
+## 1. 项目架构与目录契约
 
-本仓库是 DeepSeek Harness 的 Tauri 插件 workspace，采用 host half / client half 架构。
+* **架构**：Host half (`src/*.ts`) / Client half (`src/client/*.ts`)。
+* **宿主侧**：
+* `src/index.ts`（能力、工具、HTTP 路由、系统上下文）
+* `src/types.ts`、`src/constants.ts`
 
-- `src/*.ts`：宿主侧服务实现。
-- `src/index.ts`：宿主侧能力、工具、HTTP 路由和系统上下文。
-- `src/types.ts`：宿主侧类型定义。
-- `src/constants.ts`：宿主侧常量定义。
-- `src/client/*.ts`：浏览器侧插件、slot 组件和 DOM 集成。
-- `src/client/types.ts`：该插件客户端共享类型的唯一集中位置。
-- `src/client/constants.ts`：该插件客户端共享常量的唯一集中位置。
-- `src/client/icons.ts`：该插件客户端共享图标的唯一集中位置，图标只从 github.com/gravity-ui/icons 中获取。
-- `src/client/styles.ts`：该插件客户端 css-render 样式树和样式挂载函数。
 
-## 基本技术约定
+* **客户端侧**：
+* `src/client/types.ts`：**唯一**集中存放客户端共享类型的位置（禁止组件重复定义）。
+* `src/client/constants.ts`：**唯一**集中存放常量（Slot、ID、API 前缀、样式 ID 等）的位置。
+* `src/client/icons.ts`、`src/client/styles.ts`（样式标签挂载）。
 
-- 使用 TypeScript，保持 strict 类型检查。
-- 使用 ESM，所有包保留 `"type": "module"`。
-- 使用 pnpm；依赖版本优先通过 `pnpm-workspace.yaml` 的命名 catalog 管理。
-- 使用 `@antfu/eslint-config`，不引入 Prettier。
-- 提交前运行 `pnpm run lint --fix`，不要新增独立的 `lint:fix` script。
-- 完成非平凡改动后必须运行 lint、typecheck、test 和相关 build。
-- 优先使用相对路径导入；只有仓库已经配置并使用的别名才能继续使用。
-- 类型和常量必须显式导入，避免隐式或自动导入。
-- React 组件文件统一使用全小写 kebab-case（`xx-xx.tsx`），例如 `extension-panel.tsx`、`markdown-preview.tsx`；不得使用 PascalCase 文件名。
-- 函数尽量声明明确返回类型；复杂 inline 类型应提取为命名类型。
-- 注释解释设计原因，不重复描述代码表面行为。
+## 2. 编码与技术规范
 
-## 客户端类型集中规则
+* **基础**：TypeScript (`strict`)、ESM (`"type": "module"`)、pnpm（通过 `pnpm-workspace.yaml` catalog 管理依赖）。
+* **风格**：遵循 `@antfu/eslint-config`（**无 Prettier**）；使用相对路径导入；类型/常量必须显式导入。
+* **组件**：React 组件统一使用 kebab-case（如 `extension-panel.tsx`）；优先复用 DeepSeek Harness 已有组件。
+* **类型与常量**：跨文件类型/常量必须走集中文件；组件仅消费常量，不硬编码协议字符串。
 
-每个插件的客户端共享类型统一放在该插件的 `src/client/types.ts`：
+## 3. 样式与生命周期规则
 
-```ts
-// src/client/types.ts
-export interface SettingsSidebarProps {
-  // ...
-}
+* **样式**：无 CSS-in-JS 运行时。通过单一 `<style data-plugin="..." data-plugin-css="...">` 标签挂载；样式由 `mount*Styles` 返回 disposer 并交由 `ctx.effect()` 管理。选择器限定在根 class 内，使用插件前缀。
+* **生命周期 (`apply()`)**：
+1. 注册/安装 locale、服务与协议。
+2. `ctx.effect()` 挂载样式（返回 disposer）。
+3. 注册 Slot 组件与 UI 行为。
+4. `ctx.effect()` 管理 Observer、事件、定时器、DOM 补丁。
 
-export type SelectorHook<T> = <S>(selector: (state: T) => S) => S
-```
+* **清理原则**：所有 effect 必须具备完备的 disposer（移除监听、取消异步、清理 DOM 标签与状态）。
 
-组件、服务和工具文件不得重复声明跨文件使用的 `interface` 或 `type`。使用 type-only import：
+## 4. Slot 与宿主安全规则
 
-```ts
-import type { SelectorHook, SettingsSidebarProps } from './types'
-```
+* **Slot**：使用 `constants.ts` 中的稳定常量（`name`、`id`、`registrant`、`order`、`priority`）；失败时必须 graceful fallback（禁止白屏）。
+* **宿主侧**：
+* Git/文件/进程 API 仅限 Host half。
+* HTTP 路由严格限制方法并校验来源/权限。
+* 破坏性 Git 操作必须原子化并校验每步结果，严禁静默覆盖用户分支、未提交改动或将 `process.cwd()` 作为未知 session 的 fallback。
 
-仅在为了兼容既有公开 API 时，才允许从原文件 re-export 类型：
+## 5. 退级策略（优先级从高到低）
 
-```ts
-export type { NavBridgeHandlers } from './types'
-```
+1. **官方公开 API**：严格对照当前安装版本的 `.d.ts`（禁止臆断）。
+2. **DOM 补丁**：通过 MutationObserver 监听官方 DOM（仅限稳定 `aria-label` / `role` 选择器，禁用 CSS module 哈希）。
+3. **降级/禁用**：无解时明确报错并禁用功能，严禁静默半工作状态。
 
-纯组件内部且绝不跨文件使用的极小类型可以保留在组件文件中，但新增类型默认应先考虑放入 `types.ts`。
+## 6. 验证与交付检查
 
-## 客户端常量集中规则
-
-每个插件的客户端共享常量统一放在该插件的 `src/client/constants.ts`：
-
-- slot 名称、注册 id、registrant、order 和 priority
-- CSS style id、class name、CSS custom property 名称
-- API prefix、storage key、事件 source/type、命令名称
-- 动画时长、尺寸边界、默认值和正则表达式
-- locale namespace 和稳定协议标识
-
-示例：
-
-```ts
-// src/client/constants.ts
-export const PANEL_PROTOCOL_SERVICE = 'panel.protocol'
-export const PANEL_ACTION_SLOT = 'sidebar.panel.action'
-export const PANEL_STYLE_ID = 'dsh-tauri-panel-styles'
-```
-
-组件文件只消费常量，不重复写共享字符串或数字。真正只使用一次且不表达协议的局部值可以保留在实现文件中。
-
-## 样式与 css-render 规则
-
-所有客户端自定义样式使用 [`css-render`](https://css-render.vercel.app/)：
-
-- 不使用 React 静态 inline styles。
-- 不使用 `style.textContent`、手写 `<style>` 注入或 `raw` CSS 字符串绕过 css-render 对象树。
-- CSS 规则拆成 `CssRender().c(selector, properties, children)` 节点。
-- css-render 样式只允许在插件 `apply()` 生命周期中挂载。
-- 样式挂载函数命名为 `mount<Name>Styles`，返回 `() => void` disposer。
-- 样式安装和卸载必须由 `ctx.effect()` 管理。
-- 如果 style id 已由其他生命周期挂载，当前调用不得取得其所有权，也不得在 disposer 中卸载它。
-- hover、focus、active、disabled 等状态优先使用 CSS selector 或 modifier class。
-- 仅保留真正动态的几何值作为 CSS custom property，例如拖拽宽度。
-- 所有动态样式必须可在插件卸载时恢复，不得在 React render 中挂载全局样式。
-- style id 和 class name 使用插件前缀，跨插件协议使用的 class 名称必须保持兼容。
-
-标准模式：
-
-```ts
-export function mountPanelStyles(): () => void {
-  if (typeof document === 'undefined')
-    return () => {}
-
-  const cssr = CssRender()
-  if (cssr.find(PANEL_STYLE_ID) !== null)
-    return () => {}
-
-  const style = cssr.c([
-    cssr.c('.dshp-panel', {
-      display: 'flex',
-    }),
-  ])
-  style.mount({ id: PANEL_STYLE_ID, head: true })
-  return () => style.unmount({ id: PANEL_STYLE_ID })
-}
-```
-
-## 客户端 apply 与生命周期规则
-
-每个客户端插件的 `apply()` 应按以下顺序组织：
-
-1. 注册或安装 locale、运行时状态和协议服务。
-2. 通过 `ctx.effect()` 挂载 css-render 样式，并返回 disposer。
-3. 注册 slot 组件和 UI 行为。
-4. 通过 `ctx.effect()` 管理 MutationObserver、事件监听、定时器、hydration 和 DOM 补丁。
-
-命名按职责区分：
-
-- `mount*Styles`：挂载 css-render 样式并返回 disposer。
-- `install*`：安装 locale、服务、observer、hydration 等运行时能力。
-- `register*`：注册 slot、组件或协议条目。
-- `apply`：插件唯一的总装配入口。
-
-每个 effect 必须拥有对应清理逻辑：
-
-- 取消 MutationObserver。
-- 移除 event listener。
-- 清理 timeout、interval 和未执行的 animation frame。
-- 取消或忽略过期异步请求。
-- 卸载当前实例实际拥有的样式。
-- 恢复被临时修改的宿主 DOM 状态。
-
-## Slot 与组件协议规则
-
-slot 注册必须保持稳定且可追踪：
-
-```ts
-ctx.slots.register(
-  {
-    name: SLOT_NAME,
-    id: COMPONENT_ID,
-    registrant: PLUGIN_NAME,
-    order: COMPONENT_ORDER,
-    priority: COMPONENT_PRIORITY,
-    inject: sessionId => ({ sessionId }),
-  },
-  Component,
-)
-```
-
-- `name`、`id`、`registrant` 使用 `constants.ts` 中的稳定常量。
-- props 结构在 `types.ts` 中定义，不在多个组件间复制。
-- 组件协议的 public props 必须有可访问名称和明确类型。
-- 缺少可选 renderer patch 时必须 graceful fallback，不得白屏。
-- 不得依赖生成的 CSS module hash；优先使用稳定 slot、ARIA 属性和插件前缀 class。
-- 跨插件协议的 class、slot、service key 修改时必须同步更新所有消费者和文档。
-
-## 宿主侧规则
-
-- Git、文件系统、进程和宿主 API 只能放在 host half。
-- HTTP route 必须严格限制方法；变更操作必须校验来源、参数和 session 归属。
-- 破坏性 Git 操作必须检查每一步结果，失败时保留可恢复 binding/ledger。
-- 不得用 `process.cwd()` 作为未知 session 的静默 fallback。
-- ledger 和 checkout context 使用原子写入；load-modify-save 需要考虑并发更新。
-- 不得静默覆盖用户已有分支或未提交改动。
-- 用户输入的 branch/ref 必须使用 Git 权威校验，不要仅依赖自制正则。
-
-## 退级策略
-
-当功能需要当前官方 dsh 发行版未提供的宿主能力时，按从最优到最差的顺序规划**退级阶梯**：
-
-1. **官方公开 API** —— `ctx.sessions`、`ctx.workspaceRegistry`、`ctx.sessionPersistence`、`ctx.agents`、`ctx.webServer`、`ctx.tools`、`ctx.systemPrompt`，客户端 `ctx.slots` / `ctx.sessions` / `ctx.workspaces`。务必对照**已安装** dsh 版本的 `.d.ts` 核实签名，绝不臆断 API 存在。
-<!-- 该仓库作为通用协议，所以禁用补丁条目：2. **桌面壳补丁** —— 官方 API 缺失时，桌面壳（桌面应用外壳）在启动前对捆绑的 dsh 核心做补丁（见 `src-tauri/src/service/workflow/*_patch.rs` 模式），以锚点校验、幂等、带单元测试的方式暴露窄面补充能力（例如 `SessionStore.remove(id)`）。插件侧做能力探测，缺失时报错。 -->
-2. **DOM 补丁** —— 客户端半区可通过 MutationObserver + capture 监听改写官方 DOM（portal 菜单、侧边栏行），使用稳定的 `aria-label` / `role` 选择器，绝不用生成的 CSS module 哈希。
-3. **功能禁用 / 降级模式** —— 以上都不适用时禁用功能并输出明确日志，绝不静默半工作。
-
-## 测试与验证
-
-- Vitest 测试使用 `describe` / `it` / `expect`，禁止恒真占位测试。
-- `foo.ts` 的测试命名为同目录 `foo.test.ts`。
-- 优先测试纯函数、状态转换、HTTP 方法/授权边界、storage 原子性和公开协议。
-- UI 测试应验证 fallback、slot 注册、ARIA 状态和卸载清理。
-- 完成改动后运行：
+提交/完成前必须通过以下命令：
 
 ```bash
 pnpm run lint --fix
 pnpm run typecheck
 pnpm run test -- --run
 pnpm run build
+
 ```
 
-## 交付检查清单
-
-- [ ] 新增共享类型已放入对应 `src/client/types.ts`。
-- [ ] 新增共享常量已放入对应 `src/client/constants.ts`。
-- [ ] 样式全部由 css-render 对象节点生成。
-- [ ] 样式只在 `apply()` 的 effect 中挂载。
-- [ ] 样式 disposer、observer、listener、timer 均已清理。
-- [ ] slot 协议使用稳定 id、registrant 和显式 props 类型。
-- [ ] 没有静默覆盖用户数据或 Git 分支。
-- [ ] lint、typecheck、test、build 均通过。
-- [ ] 相关 README、协议文档和导出契约已同步。
+* **检查清单**：共享类型/常量已归位 ｜ 样式单标签且带 disposer 完整清理 ｜ Slot 稳定且具兜底 ｜ 无数据/分支覆盖风险 ｜ 相关契约文档已同步。

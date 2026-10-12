@@ -169,10 +169,6 @@ catalogs:
     '@types/node':
       specifier: ^26.1.1
       version: 26.1.1
-  ui:
-    css-render:
-      specifier: ^0.15.14
-      version: 0.15.14
 
 importers:
 
@@ -301,9 +297,6 @@ importers:
       bumpp:
         specifier: catalog:cli
         version: 12.0.0
-      css-render:
-        specifier: catalog:ui
-        version: 0.15.14
       eslint:
         specifier: catalog:cli
         version: 10.7.0(jiti@2.6.1)
@@ -1153,9 +1146,6 @@ packages:
 
   '@emnapi/wasi-threads@1.2.2':
     resolution: {integrity: sha512-c95qOXkHdydNKhscBTebqEC1CVAZpyqOfVfBzQ1qgzyl3gfeldUjIggDbIZgDKsHLgnsM+igH7TJ/eAasaVuMA==}
-
-  '@emotion/hash@0.8.0':
-    resolution: {integrity: sha512-kBJtf7PH6aWwZ6fka3zQ0p6SBYzx4fl1LoZXE2RrnYST9Xljm7WfKJrU4g/Xr3Beg72MLrp1AWNUmuYJTL7Cow==}
 
   '@es-joy/jsdoccomment@0.84.0':
     resolution: {integrity: sha512-0xew1CxOam0gV5OMjh2KjFQZsKL2bByX1+q4j3E73MpYIdyUxcZb/xQct9ccUb+ve5KGUYbCUxyPnYB7RbuP+w==}
@@ -2454,16 +2444,10 @@ packages:
     resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
     engines: {node: '>= 8'}
 
-  css-render@0.15.14:
-    resolution: {integrity: sha512-9nF4PdUle+5ta4W5SyZdLCCmFd37uVimSjg1evcTqKJCyvCEEj12WKzOSBNak6r4im4J4iYXKH1OWpUV5LBYFg==}
-
   cssesc@3.0.0:
     resolution: {integrity: sha512-/Tb/JcjK111nNScGob5MNtsntNM1aCNUDipB/TkwZFhyDrrE47SOx/18wF2bbjgc3ZzCSKW1T5nt5EbFoAz/Vg==}
     engines: {node: '>=4'}
     hasBin: true
-
-  csstype@3.0.11:
-    resolution: {integrity: sha512-sa6P2wJ+CAbgyy4KFssIb/JNMLxFvKF1pCYCSXS8ZMuqZnMsrxqI2E5sPyoTpxoPU/gVZMzr2zjOfg8GIZOMsw==}
 
   debug@2.6.9:
     resolution: {integrity: sha512-bC7ElrdJaJnPbAP+1EotYvqZsb3ecl5wi6Bfi6BJTUcNowp6cvspg0jXznRTKDjm/E7AdgFBVeAPVMNcKGsHMA==}
@@ -4752,8 +4736,6 @@ snapshots:
       tslib: 2.8.1
     optional: true
 
-  '@emotion/hash@0.8.0': {}
-
   '@es-joy/jsdoccomment@0.84.0':
     dependencies:
       '@types/estree': 1.0.8
@@ -5775,14 +5757,7 @@ snapshots:
       shebang-command: 2.0.0
       which: 2.0.2
 
-  css-render@0.15.14:
-    dependencies:
-      '@emotion/hash': 0.8.0
-      csstype: 3.0.11
-
   cssesc@3.0.0: {}
-
-  csstype@3.0.11: {}
 
   debug@2.6.9:
     dependencies:

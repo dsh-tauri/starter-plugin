@@ -103,7 +103,6 @@
     "@deepseek-ai/dsh-workspace": "catalog:dsh",
     "@types/node": "catalog:types",
     "bumpp": "catalog:cli",
-    "css-render": "catalog:ui",
     "eslint": "catalog:cli",
     "nano-staged": "catalog:cli",
     "publint": "catalog:cli",
