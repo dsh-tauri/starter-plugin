@@ -13,5 +13,6 @@ jobs:
     uses: sxzz/workflows/.github/workflows/unit-test.yml@main
     with:
       node-versions: '24'
+      os-matrix: '"ubuntu-latest", "windows-latest", "macos-latest"'
       build: npm install --global @deepseek-ai/dsh@0.2.1-rc.5 && pnpm exec playwright install --with-deps chromium && pnpm run build
       test: DSH_E2E_REQUIRED=1 pnpm run test -- --run
