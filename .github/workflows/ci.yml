@@ -9,11 +9,11 @@ on:
 permissions: {}
 
 jobs:
-  unit-test:
+  test:
     uses: sxzz/workflows/.github/workflows/unit-test.yml@main
-
-  # coverage:
-  #   uses: sxzz/workflows/.github/workflows/coverage.yml@main
-  #   needs: unit-test
-  #   permissions:
-  #     id-token: write
+    with:
+      primary-os: ubuntu-latest
+      os-matrix: '"ubuntu-latest"'
+      node-versions: '24'
+      build: npm install --global @deepseek-ai/dsh@0.2.1-rc.5 && pnpm exec playwright install --with-deps chromium && pnpm run build
+      test: DSH_E2E_REQUIRED=1 pnpm run test -- --run
