@@ -22,7 +22,6 @@ const common: UserConfig = {
   outExtensions: () => ({ js: '.js' }),
   publint: true,
   external: dshExternal,
-  plugins: [StaleGuardRecorder],
 }
 
 export default defineConfig([
@@ -32,6 +31,7 @@ export default defineConfig([
     dts: true,
     sourcemap: false,
     clean: true,
+    plugins: [StaleGuardRecorder()],
   },
   {
     ...common,
@@ -39,6 +39,7 @@ export default defineConfig([
     // Client bundles are classic scripts consumed by dsh-client-modules.
     // CJS output is required so its exports remain inside the loader factory.
     format: 'cjs',
+    outExtensions: () => ({ js: '.cjs' }),
     define: { 'process.env.NODE_ENV': JSON.stringify('production') },
     banner: `window.__ModuleLoader__.load({id:${id},factory:(require)=>{var module={exports:{}};var exports=module.exports;`,
     footer: 'return module.exports;}});',
@@ -46,5 +47,6 @@ export default defineConfig([
     sourcemap: true,
     minify: true,
     clean: false,
+    plugins: [StaleGuardRecorder()],
   },
 ])

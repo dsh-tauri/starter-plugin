@@ -16,7 +16,7 @@
   "sideEffects": false,
   "exports": {
     ".": "./dist/index.js",
-    "./client": "./dist/client.js",
+    "./client": "./dist/client.cjs",
     "./package.json": "./package.json"
   },
   "main": "./dist/index.js",

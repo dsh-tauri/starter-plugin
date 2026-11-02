@@ -29,7 +29,16 @@ export async function openShellPage(page: Page, scaffold: Pick<ShellScaffold, 'b
 
 export function logs(page: Page): { errors: () => string[] } {
   const errors: string[] = []
-  page.on('console', msg => msg.type() === 'error' && errors.push(msg.text()))
+  page.on('console', (msg) => {
+    if (msg.type() === 'error') {
+      const location = msg.location().url
+      errors.push(location ? `${msg.text()} (${location})` : msg.text())
+    }
+  })
+  page.on('response', (response) => {
+    if (response.status() >= 400)
+      errors.push(`${response.status()} ${response.url()}`)
+  })
   page.on('pageerror', err => errors.push(String(err)))
   return { errors: () => [...errors] }
 }
@@ -52,7 +61,7 @@ export async function launchShell(): Promise<ShellScaffold> {
     nodeOptions: { cwd: REPO_ROOT, env, stdio: 'inherit' },
   })
   const tarball = join(home, readdirSync(home).find(name => name.endsWith('.tgz'))!)
-  await x(command, ['plugin', '--profile', 'web', 'add', tarball], {
+  await x(command, ['plugin', '--profile', 'web', 'add', '--ignore-scripts', tarball], {
     timeout: 300_000,
     throwOnError: true,
     nodeOptions: { cwd: REPO_ROOT, env, stdio: 'inherit' },
