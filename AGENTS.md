@@ -1,5 +1,7 @@
 # AGENTS.md
 
+> 请先安装依赖，安装依赖后你将获得该项目所需 skills
+
 ## 1. 项目架构与目录契约
 
 * **架构**：Host half (`src/*.ts`) / Client half (`src/client/*.ts`)。
@@ -11,7 +13,7 @@
 * **客户端侧**：
 * `src/client/types.ts`：**唯一**集中存放客户端共享类型的位置（禁止组件重复定义）。
 * `src/client/constants.ts`：**唯一**集中存放常量（Slot、ID、API 前缀、样式 ID 等）的位置。
-* `src/client/icons.ts`、`src/client/styles.ts`（样式标签挂载）。
+* `src/client/icons.ts`、`src/main.css`（taiwind 入口文件）。
 
 ## 2. 编码与技术规范
 
@@ -22,14 +24,7 @@
 
 ## 3. 样式与生命周期规则
 
-* **样式**：无 CSS-in-JS 运行时。通过单一 `<style data-plugin="..." data-plugin-css="...">` 标签挂载；样式由 `mount*Styles` 返回 disposer 并交由 `ctx.effect()` 管理。选择器限定在根 class 内，使用插件前缀。
-* **生命周期 (`apply()`)**：
-1. 注册/安装 locale、服务与协议。
-2. `ctx.effect()` 挂载样式（返回 disposer）。
-3. 注册 Slot 组件与 UI 行为。
-4. `ctx.effect()` 管理 Observer、事件、定时器、DOM 补丁。
-
-* **清理原则**：所有 effect 必须具备完备的 disposer（移除监听、取消异步、清理 DOM 标签与状态）。
+* **基础**：样式使用 `dsh-taiwind` 作为基础，保留未编译的 `src/main.css`，可在 `src/client/*` 范围内使用 `taiwind` 类名。
 
 ## 4. Slot 与宿主安全规则
 

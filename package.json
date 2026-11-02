@@ -25,7 +25,8 @@
   "files": [
     "README.md",
     "cordis.patch.yml",
-    "dist"
+    "dist",
+    "src/main.css"
   ],
   "dsh": {
     "client": {
@@ -37,7 +38,8 @@
     },
     "bundle": {
       "patch": "./cordis.patch.yml"
-    }
+    },
+    "taiwind": "src/main.css"
   },
   "scripts": {
     "build": "tsdown",
@@ -60,6 +62,11 @@
     "test": "Run the test suite",
     "typecheck": "Check types",
     "prepare": "Set up git hooks and skills"
+  },
+  "dependencies": {
+    "dsh-h3": "catalog:utils",
+    "dsh-taiwind": "catalog:utils",
+    "h3": "catalog:utils"
   },
   "devDependencies": {
     "@antfu/eslint-config": "catalog:cli",
@@ -101,6 +108,9 @@
     "@deepseek-ai/dsh-util-code-language": "catalog:dsh",
     "@deepseek-ai/dsh-util-values": "catalog:dsh",
     "@deepseek-ai/dsh-workspace": "catalog:dsh",
+    "@genapi/core": "catalog:cli",
+    "@genapi/pipeline": "catalog:cli",
+    "@genapi/presets": "catalog:cli",
     "@types/node": "catalog:types",
     "bumpp": "catalog:cli",
     "eslint": "catalog:cli",
