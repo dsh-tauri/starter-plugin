@@ -10,9 +10,29 @@ permissions: {}
 
 jobs:
   test:
-    uses: sxzz/workflows/.github/workflows/unit-test.yml@main
-    with:
-      node-versions: '24'
-      os-matrix: '"ubuntu-latest", "windows-latest", "macos-latest"'
-      build: npm install --global @deepseek-ai/dsh@0.2.1-rc.5 && pnpm exec playwright install --with-deps chromium && pnpm run build
-      test: DSH_E2E_REQUIRED=1 pnpm run test -- --run
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        node-version: ['24']
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Setup JS
+        uses: sxzz/workflows/setup-js@main
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install DSH and Playwright
+        run: npm install --global @deepseek-ai/dsh@0.2.1-rc.5 && pnpm exec playwright install chromium
+
+      - name: Lint and typecheck
+        run: pnpm run lint && pnpm run typecheck
+
+      - name: Build
+        run: pnpm run build
+
+      - name: Test
+        run: pnpm run test -- --run
+        env:
+          DSH_E2E_REQUIRED: '1'

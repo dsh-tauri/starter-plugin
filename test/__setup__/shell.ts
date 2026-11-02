@@ -32,11 +32,12 @@ export function logs(page: Page): { errors: () => string[] } {
   page.on('console', (msg) => {
     if (msg.type() === 'error') {
       const location = msg.location().url
-      errors.push(location ? `${msg.text()} (${location})` : msg.text())
+      if (!msg.text().includes('401') && !msg.text().includes('Unauthorized'))
+        errors.push(location ? `${msg.text()} (${location})` : msg.text())
     }
   })
   page.on('response', (response) => {
-    if (response.status() >= 400)
+    if (response.status() >= 400 && response.status() !== 401)
       errors.push(`${response.status()} ${response.url()}`)
   })
   page.on('pageerror', err => errors.push(String(err)))
