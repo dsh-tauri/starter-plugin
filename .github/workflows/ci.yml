@@ -24,7 +24,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
 
       - name: Install DSH and Playwright
-        run: npm install --global @deepseek-ai/dsh@0.2.1-rc.5
+        run: pnpm install -g @deepseek-ai/dsh@0.2.1-rc.5 && pnpm exec playwright install chromium
 
       - name: Lint and typecheck
         run: pnpm run lint && pnpm run typecheck
