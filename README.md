@@ -98,33 +98,6 @@ DSH_HOME="$DSH_HOME" dsh --profile web
 
 client 产物是 `dist/client.cjs`，加载器入口由 [tsdown.config.ts](./tsdown.config.ts) 里的 `banner` / `footer` 生成，因此工厂函数的导出不能丢。
 
-### 目录结构
-
-```text
-src/
-  index.ts              Host 入口 —— apply(ctx)、能力、工具              ✓ 已存在
-  types.ts              Host 侧共享类型                                  + 约定位置
-  constants.ts          Host 侧共享常量与协议字符串                      + 约定位置
-  server/
-    index.ts            defineWebServer()                                + 约定位置
-    routes/             dsh-h3 路由，一个方法一个文件（foo.get.ts）        + 约定位置
-  client/
-    index.ts            Client 入口 —— apply(ctx)、UI 注册                ✓ 已存在
-    components/         所有 React 组件都放这里
-      official.ts       官方组件统一导出                                  ✓ 已存在
-      icons.tsx         新增图标放这里                                    + 约定位置
-    types.ts            Client 侧共享类型                                + 约定位置
-    constants.ts        Slot 的 name/id/registrant/order/priority        + 约定位置
-  main.css              dsh-taiwind 入口（不要手工编译）                  ✓ 已存在
-test/
-  e2e/smoke.spec.ts     对真实外壳的浏览器用例                            ✓ 已存在
-  __setup__/            外壳脚手架、Cookie 交换、清理                     ✓ 已存在
-cordis.patch.yml        Bundle patch —— 插件 id 必须与包名一致            ✓ 已存在
-tsdown.config.ts        Host（ESM + d.ts）与 Client（CJS）两套产物        ✓ 已存在
-```
-
-`✓ 已存在` 是模板现在就有的；`+ 约定位置` 是等真正需要时再造的文件 —— 名字别改，这套切分是这个系列插件的共同约定。
-
 ### 脚本
 
 | 脚本 | 作用 |
