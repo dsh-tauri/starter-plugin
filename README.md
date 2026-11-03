@@ -75,7 +75,7 @@
 npx skills add hairyf/skills --skill dsh-plugin-creator -g
 ```
 
-> 在 Harness 中对话：做一个 XX 插件，目录放 `some/path`，仓库归属 `owner/repo`（public）
+> 在 Harness 中对话：/dsh-plugin-creator 做一个 XX 插件，目录放 `some/path`，仓库归属 `owner/repo`（public）
 
 它将覆盖插件全流程开发 —— 用模板建仓库、实现 Host / Client、本地校验、推送，以及盯 CI。
 
