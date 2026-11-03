@@ -1,3 +1,7 @@
+> NOTE: 该模版可通过 dsh-plugin-creator skill 直接使用（`npx skills add hairyf/skills --skill dsh-plugin-creator`）
+> 
+> /dsh-plugin-creator 制作一个 xxx 插件，目录存放 xxx/xxx 路径，仓库归属 xxx/xxx（public）
+
 # pkg-placeholder
 
 [![npm version][npm-version-src]][npm-version-href]
