@@ -1,5 +1,5 @@
 <p align='center'>
-  <img src='public/hero.png' alt='DSH Plugin Starter - Opinionated Vite Starter Template' width='600'/>
+  <img src='public/hero.png' alt='DSH Plugin Starter - Opinionated Vite Starter Template' />
 </p>
 
 <h1 align='center'>DSH Plugin Starter</h1>
