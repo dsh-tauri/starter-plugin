@@ -3,7 +3,6 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import process from 'node:process'
 import { defineConfig } from 'tsdown'
-import { StaleGuardRecorder } from 'tsdown-stale-guard'
 
 export const dshExternal = [
   'react',
@@ -31,7 +30,6 @@ export default defineConfig([
     dts: true,
     sourcemap: false,
     clean: true,
-    plugins: [StaleGuardRecorder()],
   },
   {
     ...common,
@@ -47,6 +45,5 @@ export default defineConfig([
     sourcemap: true,
     minify: true,
     clean: false,
-    plugins: [StaleGuardRecorder()],
   },
 ])

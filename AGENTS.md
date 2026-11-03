@@ -14,7 +14,7 @@ DSH 插件采用 Host / Client 双构建，最终产物与浏览器加载入口�
 - `src/client/components/official.ts`：集中导出 DeepSeek 官方组件。
 - 新增图标统一放 `src/client/components/icons.tsx`；客户端共享类型放 `src/client/types.ts`，共享常量放 `src/client/constants.ts`。
 - `src/main.css`：保留未编译的 dsh-taiwind / tailwind 入口；Client 样式类名在 `src/client/*` 内编写。
-- `test/`：Vitest、API 快照与 Playwright E2E 测试。
+- `test/`：Vitest 与 Playwright E2E 测试。
 - `test/e2e/**/*.{test,spec}.{ts,tsx}`：真实浏览器 E2E 测试；普通 Vitest 文件后缀即可，不要求 `.e2e.ts`。
 - `test/__setup__/shell.ts`：启动真实 DSH shell、构建/安装插件、交换 Cookie、注入浏览器会话并清理临时环境。
 - `dist/`：构建产物，不手写修改。

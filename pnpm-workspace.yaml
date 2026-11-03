@@ -80,8 +80,6 @@ catalogs:
   testing:
     '@vitest/browser-playwright': ^4.1.10
     playwright: ^1.62.1
-    tsdown-stale-guard: ^0.1.3
-    tsnapi: ^1.0.0
     vitest: ^4.1.12
   types:
     '@types/node': ^26.1.1
