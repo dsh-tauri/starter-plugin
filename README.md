@@ -24,7 +24,7 @@
 - 🧩 **两段构建** — Host 插件与 Client 模块分开打包，由 [tsdown](https://tsdown.dev) 一次产出
 - 🗂️ **每个文件都有归处** — 共享类型、常量、HTTP 路由、组件、Slot id 各有既定位置，不会都堆进一个 `utils.ts`
 - 🖥️ **[dsh-h3](https://www.npmjs.com/package/dsh-h3) 路由** — `src/server/routes/` 下一个 HTTP 方法一个文件，通过 `defineWebServer` 挂载
-- ⚛️ **基于官方组件的 React** — 组件集中在 `src/client/components`，复用 `@deepseek-ai/dsh-client-ui-*`，不重复造 UI
+- ⚛️ **基于官方组件** — 组件集中在 `src/client/components`，复用 `@deepseek-ai/dsh-client-ui-*`，不重复造 UI
 - 🎨 **Tailwind** — `src/main.css` 未编译的 [dsh-taiwind](https://www.npmjs.com/package/dsh-taiwind) 入口，由 bundle patch 注入
 - 🧪 **真实浏览器 E2E** — 基于 [vitest/browser](https://vitest.dev/api/browser/commands.html) + Playwright 启动 DSH，并断言控制台零错误
 - 🧠 **所需技能已备齐** — 通过安装依赖将 Cordis 插件开发、composition 配置以及其他相关技能。
