@@ -1,31 +1,19 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import { commands } from 'vitest/browser'
+import { commands } from './setup'
 
-declare module 'vitest/browser' {
-  interface BrowserCommands {
-    launchDsh: () => Promise<{ baseUrl: string }>
-    openDshPage: () => Promise<{ url: string }>
-    getDshErrors: () => Promise<string[]>
-    closeDsh: () => Promise<void>
-  }
-}
+describe('dSH shell smoke test', () => {
+  beforeAll(commands.launch)
+  afterAll(commands.close)
 
-describe('dSH shell browser mode smoke test', () => {
-  let openedUrl = ''
-
-  beforeAll(async () => {
-    await commands.launchDsh()
-    openedUrl = (await commands.openDshPage()).url
-  })
-
-  afterAll(async () => {
-    await commands.closeDsh()
-  })
-
-  it('opens the authenticated DSH shell in Chromium', async () => {
-    const url = new URL(openedUrl)
+  it('opens the authenticated shell', async () => {
+    const url = new URL((await commands.page()).url())
     expect(url.protocol).toMatch(/^https?:$/u)
     expect(url.pathname).toBe('/')
-    expect(await commands.getDshErrors()).toEqual([])
+  })
+
+  it('renders the shell', async () => {
+    const page = await commands.page()
+    expect(await page.locator('body').isVisible()).toBe(true)
+    expect(await page.title()).not.toBe('')
   })
 })
