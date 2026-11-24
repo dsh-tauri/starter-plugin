@@ -44,6 +44,7 @@
   "scripts": {
     "build": "tsdown",
     "dev": "tsdown --watch",
+    "dev:dsh": "tsx scripts/dsh.ts",
     "lint": "eslint",
     "prepack": "nr build",
     "release": "bumpp",
@@ -57,6 +58,7 @@
   "scripts-info": {
     "build": "Build the library for publishing",
     "dev": "Rebuild on change during development",
+    "dev:dsh": "Boot a dev DSH instance with this plugin linked",
     "lint": "Check for code style issues",
     "prepack": "Build before publishing",
     "release": "Bump version and publish a release",

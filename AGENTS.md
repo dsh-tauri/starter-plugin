@@ -1,61 +1,47 @@
 # AGENTS.md
 
-> 首次工作前运行 `pnpm install --frozen-lockfile`；CI 与本地 E2E 需要预装 `@deepseek-ai/dsh` CLI 和 Playwright Chromium。
+## 工作入口
 
-## 项目结构
+- 首次工作前运行 `pnpm install --frozen-lockfile`；CI 与本地 E2E 预装 DSH CLI 和 Playwright Chromium。
+- 分析、修改、重构或编写测试前，按装配表读取适用的规范；未装配的规范除非用户明确要求，不读。
+- 用户的明确要求优先于仓库规范，领域规范优先于通用建议。不得机械套用精简、内联或目录规则改变 UI/UX、组件边界或业务协议。
+- 规范仅在用户明确授权维护时修改，采用现行规则的覆盖式写法；同一事项只保留一致结论，不写历史经过、迁移对照或互相冲突的补充条款。
 
-DSH 插件采用 Host / Client 双构建，最终产物与浏览器加载入口以 `package.json`、`tsdown.config.ts`、`cordis.patch.yml` 为准。
+## 规范装配表
 
-- `src/index.ts`：Host 插件挂载入口；Host 侧共享类型放 `src/types.ts`，共享常量放 `src/constants.ts`。
-- `src/server/index.ts`：通过 `defineWebServer` 定义服务入口。
-- `src/server/routes/*.[get|post|put|...].ts`：dsh-h3 HTTP 路由，按方法拆分文件。
-- `src/client/index.ts`：Client 插件挂载入口。
-- `src/client/components/`：唯一集中存放 React 组件的位置，禁止在其他模块分散定义组件。
-- `src/client/components/official.ts`：集中导出 DeepSeek 官方组件。
-- 新增图标统一放 `src/client/components/icons.tsx`；客户端共享类型放 `src/client/types.ts`，共享常量放 `src/client/constants.ts`。
-- `src/main.css`：保留未编译的 dsh-taiwind / tailwind 入口；Client 样式类名在 `src/client/*` 内编写。
-- `test/`：Vitest 与 Playwright E2E 测试。
-- `test/e2e/**/*.{test,spec}.{ts,tsx}`：真实浏览器 E2E 测试；普通 Vitest 文件后缀即可，不要求 `.e2e.ts`。
-- `test/__setup__/shell.ts`：启动真实 DSH shell、构建/安装插件、交换 Cookie、注入浏览器会话并清理临时环境。
-- `dist/`：构建产物，不手写修改。
-- `vitest.config.ts`：Unit 与 E2E project 入口；`vitest.e2e.config.ts` 负责 E2E project。
-- `.github/workflows/ci.yml`：仅复用 `sxzz/workflows/.github/workflows/unit-test.yml@main`。
+| 规范 | 装配 | 读取时机 | 样板 |
+| --- | --- | --- | --- |
+| [通用开发协议](<docs/specs/devlopment.md>) | 启用 | 所有代码分析与修改 | — |
+| [客户端协议](<docs/specs/plugin.client.md>) | 启用 | 客户端入口、插槽、组件、状态、样式 | — |
+| [宿主架构协议](<docs/specs/plugin.host.md>) | 启用 | 宿主装配、Agent 工具、事件、文件存储、调度、HTTP 路由 | — |
+| [领域服务协议](<docs/specs/plugin.host.service.md>) | 启用 | 领域服务、宿主能力访问、异步任务与清理 | — |
+| [测试与验证协议](<docs/specs/testing.md>) | 启用 | 测试、视觉对照、故障验证、交付声明 | — |
+| [数据库协议](<docs/specs/plugin.database.md>) | 未启用 | 数据库 schema、迁移、SQL 与持久化 | `skills/database` |
+| [查询协议](<docs/specs/plugin.query.md>) | 未启用 | 客户端数据请求、缓存 key、变更与刷新 | `skills/query` |
 
-## 编码与目录约束
+## 沟通与注释
 
-- TypeScript `strict`、ESM、pnpm；依赖版本统一由 `pnpm-workspace.yaml` catalog 管理，相对路径导入，显式导入类型与常量。
-- 遵循 `@antfu/eslint-config`，不使用 Prettier；React 文件统一 kebab-case（如 `extension-panel.tsx`），优先复用 DeepSeek Harness 官方组件。
-- Client 状态优先使用官方 `@deepseek-ai/dsh-client-store`；不得私建替代 Store、绕过官方 context/store 生命周期或另写协议适配层。
-- 命令执行使用 `tinyexec` 的异步 `x(...)`；禁止新增同步 child-process 调用和手工拼接 shell 命令。
-- `@deepseek-ai/dsh` 是 E2E 测试运行时 CLI，不是项目 bundle 依赖；本地由 PATH 或 `DSH_E2E_DSH` / `DSHM_E2E_DSH` 提供。
-- 依赖生命周期由 `postinstall` 执行 `skills-npm` 与 `pnpx skills experimental_install`；`prepare` 负责 Git hooks。
-- 跨文件类型、常量、协议字符串必须集中归档；组件只消费常量，不私设协议字符串或重复定义共享结构。
-- Git、文件、进程 API 仅限 Host half；HTTP 路由严格限制方法并校验来源与权限。
+- 中文回复，结论在前，默认三至五句；不堆标题、表格、命令和文件清单。完整报告仅在用户要求时展开。
+- 不使用 AI 套话、奉承或装饰性 emoji。同一话题的外部评论原地更新，不连续补发。
+- 推荐方案给出必要的可执行命令；明确区分已实现、已验证、未验证和环境限制，不把缓解说成修复成功。
+- 代码默认不写注释。只有难以自解释的算法、真实故障背景及协议要求的 `// keep:effect <原因>` 允许少量说明；删除冗余注释和废弃存根。
 
-## Slot、样式与安全
+> 适用于会话 / issues / PRs 等所有需要沟通场景
 
-- Slot 使用 `constants.ts` 中的稳定 `name`、`id`、`registrant`、`order`、`priority`；初始化或挂载失败时必须 graceful fallback，禁止白屏。
-- 样式使用单一 style 标签并完整注册/调用 disposer 清理；不存在样式时不得残留空标签或重复注入。
-- 破坏性 Git 操作必须原子化，并逐步校验结果：禁止静默覆盖用户分支或未提交改动；未知 session 禁止回退到 `process.cwd()`。
-- E2E Cookie 交换必须校验 DSH 启动 URL、origin、redirect、`Set-Cookie` 与安全属性；浏览器 Cookie 与 HTTP API cookie 必须保持一致。
-- Playwright E2E 使用 `chromium`、临时 `DSH_HOME`、独立 `web` profile；启动 URL 与 token 不写入日志或页面 URL；禁止进程与子进程残留。
-- 接入官方能力时优先公开 API 与当前安装版本 `.d.ts`；其次才可用 MutationObserver 监听稳定的 `aria-label` / `role`，禁止依赖 CSS module 哈希。
-- 无法安全接入时明确报错并禁用功能，禁止半工作状态；扩展相关契约、文档和测试需同步更新。
+## 检索约束
 
-## E2E 与 CI
+- 内容检索使用提供的 grep 工具或 `rg`；文件查找使用 glob 工具、`fd` 或 Git 索引。
+- 禁止 `Get-ChildItem -Recurse`、`dir -s` 及递归 `Select-String -Path`。
+- 读取文本使用 read 工具；目录只列必要层级，避免遍历依赖与参考副本。
 
-- Vitest unit project 匹配 `test/**/*.test.ts` 并排除 `test/e2e/**`；E2E project 匹配 `test/e2e/**/*.test.ts`、`*.spec.ts`、`*.test.tsx`、`*.spec.tsx`，串行执行。
-- DSH 缺失时默认跳过 E2E；设置 `DSH_E2E_REQUIRED=1` 或 `DSHM_E2E_REQUIRED=1` 时必须失败。
-- CI 通过 reusable workflow 运行 Ubuntu / Node 24，并由该 workflow 的 `build` 输入预装 `@deepseek-ai/dsh@0.2.1-rc.5`、Playwright Chromium 和项目产物。
-- `pnpm-workspace.yaml` 的 `allowBuilds` 需允许项目及测试依赖实际执行的 lifecycle scripts；Playwright 与 DSH profile 安装不得因 ignored build scripts 静默失败。
+## 交付验证
 
-## 验证
-
-交付前依次执行并确保通过：
+代码交付前依次执行，检查实际输出而不只检查退出码：
 
 ```bash
 pnpm run lint --fix
 pnpm run typecheck
 pnpm run test -- --run
-pnpm run build
 ```
+
+接口和模型类型变更须先运行对应生成命令。不得手改生成文件、放宽测试或覆盖视觉基线来制造通过结果。文档任务检查规范一致性、路由和链接，不执行构建或无关业务操作。

@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url'
 import { x } from 'tinyexec'
 import { dshCommand, exchangeProcessLaunchToken, freePort, stop, trustedProcessLaunchUrl } from './shell.utils'
 
-const REPO_ROOT = fileURLToPath(new URL('../..', import.meta.url))
+const REPO_ROOT = fileURLToPath(new URL('../../..', import.meta.url))
 const PROFILE_NAME = 'dsh.e2e'
 const STARTUP_TIMEOUT_MS = 120_000
 const COMMAND_TIMEOUT_MS = 180_000

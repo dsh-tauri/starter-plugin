@@ -1,0 +1,29 @@
+// ===========================================================================
+// <领域>
+// ===========================================================================
+
+/// <枚举业务含义：谁在什么条件下写这个值>
+enum <Domain>Status {
+  active
+  archived
+}
+
+/// <这张表记录什么，谁写谁读>
+model <Domain> {
+  /// 主键，例如 `<prefix>-105`
+  id          String        @id
+  /// 归属项目
+  projectId   String
+  title       String
+  /// 正文
+  description String?
+  status      <Domain>Status
+  createdAt   String
+  updatedAt   String
+
+  // 有父表时打开，并按实际父表字段调整
+  // project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, status])
+  @@map("<table>")
+}
