@@ -25,7 +25,6 @@ metadata:
 | 文件（镜像到同名 `src/` 路径） | 方式 |
 | --- | --- |
 | `src/client/client.ts` | 新建 |
-| `src/client/config/query-keys.ts` | 合并 |
 | `src/client/index.tsx` | 合并 |
 
 ## 用法
@@ -34,8 +33,8 @@ metadata:
 
 ```tsx
 const query = useQuery({
-  queryKey: keys.domainPage(page, PAGE_SIZE),
-  queryFn: () => getApiDomain({ page: String(page), pageSize: String(PAGE_SIZE) }),
+  queryKey: [getApiDomain.name, page, pageSize],
+  queryFn: () => getApiDomain({ page, pageSize }),
   refetchInterval: 30_000,
 })
 ```
@@ -44,14 +43,14 @@ const query = useQuery({
 const client = useQueryClient()
 const update = useMutation({
   mutationFn: (patch: { status: string }) => patchApiDomainId({ id }, patch),
-  onSettled: () => client.invalidateQueries({ queryKey: keys.domain }),
+  onSettled: () => client.invalidateQueries({ queryKey: [getApiDomain.name] }),
 })
 ```
 
 ## 步骤
 
 1. 建单例：`staleTime` 30 秒、`retry: false`、`refetchOnWindowFocus: false`。
-2. 建 key：按资源命名，带参数的用函数生成。
+2. 建 key：按请求资源命名。
 3. 入口包 `QueryClientProvider`；面板外渲染的插槽组件各自补 Provider。
 4. 在消费组件里直接写 `useQuery` / `useMutation`，`queryFn` 直接调 GenAPI 生成的函数。
 5. 写操作在 `onSettled` 调 `invalidateQueries`。

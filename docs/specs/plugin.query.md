@@ -10,7 +10,7 @@
 
 ## 查询
 
-- 查询 key 集中在 `src/client/config/query-keys.ts`，按资源命名；带参数的 key 用函数生成，不为同一资源另写字符串。
+- 查询 key 按请求资源命名，不为同一资源另写字符串。
 - 0 中间层：查询与变更直接写在消费组件里，不为单次调用建 hook 包装。
 - 同一查询被多个组件复用时才抽 hook，放 `src/client/hooks/`，一个文件一个 hook。
 - 读取一律用 `useQuery`，服务响应只经它持有，不复制进 Store；派生展示按需计算。
@@ -21,7 +21,7 @@
 
 ## 变更
 
-- 改变服务数据的写操作一律用 `useMutation`；一次性的命令式动作用 `useAsyncFn`，同样按失败可见处理。
+- 改变服务数据的写操作一律用 `useMutation`；同样按失败可见处理。
 - 需要刷新时在 `onSettled` 调 `invalidateQueries`，不在 `onSuccess` 手改缓存或回填 Store。
 - 刷新用 `queryKey` 收窄到受影响的资源；只有影响面跨资源时才刷新全部。
 - 变更失败由发起组件提示，不重复 Toast，不把失败显示为成功。
